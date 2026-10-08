@@ -1,0 +1,391 @@
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    private CheckBox[] checks;
+    private Slider treeSlider;
+    private ProgressBar progressBar;
+    private Label percentLabel;
+    private Label message;
+    private Label treeLabel;
+
+    @Override
+    public void start(Stage stage) {
+
+        // ==============================
+        // HEADER BANNER
+        // ==============================
+        Label sdgNumber = new Label("SDG 13");
+        sdgNumber.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        sdgNumber.setTextFill(Color.GOLD);
+
+        Label title = new Label("🌍 CLIMATE ACTION 🌿");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 40));
+        title.setTextFill(Color.WHITE);
+        title.setEffect(new DropShadow(10, Color.BLACK));
+
+        Label slogan = new Label("Take urgent action to combat climate change and its impacts.");
+        slogan.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        slogan.setTextFill(Color.WHITE);
+        slogan.setWrapText(true);
+        slogan.setTextAlignment(TextAlignment.CENTER);
+
+        VBox header = new VBox(6, sdgNumber, title, slogan);
+        header.setAlignment(Pos.CENTER);
+        header.setPadding(new Insets(20));
+        header.setMaxWidth(800);
+        header.setStyle(
+                "-fx-background-color: linear-gradient(to right, #00b09b, #96c93d, #f7971e);"
+                + "-fx-background-radius: 25;"
+                + "-fx-border-radius: 25; -fx-border-color: white; -fx-border-width: 3;");
+        header.setEffect(new DropShadow(15, Color.rgb(0, 0, 0, 0.5)));
+
+        // ==============================
+        // ABOUT PANEL
+        // ==============================
+        Label aboutTitle = new Label("📘 ABOUT SDG 13");
+        aboutTitle.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        aboutTitle.setTextFill(Color.web("#e65100"));
+
+        Label aboutText = new Label(
+                "Climate change affects every country. Rising temperatures, extreme weather "
+                + "and sea-level rise threaten lives and livelihoods. SDG 13 calls for cutting "
+                + "emissions, building resilience and educating people about climate action.");
+        aboutText.setWrapText(true);
+        aboutText.setFont(Font.font("Arial", 15));
+        aboutText.setTextFill(Color.web("#4e342e"));
+
+        VBox aboutBox = new VBox(10, aboutTitle, aboutText);
+        aboutBox.setPadding(new Insets(20));
+        aboutBox.setMaxWidth(800);
+        aboutBox.setStyle(panelStyle("#fffde7", "#ffb300"));
+
+        // ==============================
+        // COLOURFUL INFO CARDS
+        // ==============================
+        HBox cards = new HBox(18,
+                createCard("🔥 REDUCE", "Cut greenhouse gas emissions\nfrom energy and transport.",
+                        "#ff416c", "#ff4b2b"),
+                createCard("🌱 PROTECT", "Plant trees and protect\nforests, oceans and wildlife.",
+                        "#11998e", "#38ef7d"),
+                createCard("💡 EDUCATE", "Raise awareness and build\nclimate-smart communities.",
+                        "#4776e6", "#8e54e9"));
+        cards.setAlignment(Pos.CENTER);
+
+        // ==============================
+        // NAME + FOCUS AREA
+        // ==============================
+        Label nameLabel = new Label("Your Name:");
+        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        nameLabel.setTextFill(Color.web("#6a1b9a"));
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Enter your name");
+        nameField.setPrefWidth(200);
+        nameField.setStyle("-fx-border-color: #ab47bc; -fx-border-radius: 8;"
+                + "-fx-background-radius: 8; -fx-border-width: 2;");
+
+        Label focusLabel = new Label("Focus Area:");
+        focusLabel.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        focusLabel.setTextFill(Color.web("#6a1b9a"));
+
+        ComboBox<String> focusBox = new ComboBox<>();
+        focusBox.getItems().addAll("Energy", "Transport", "Forests", "Waste", "Water");
+        focusBox.setValue("Energy");
+        focusBox.setStyle("-fx-border-color: #ab47bc; -fx-border-radius: 8;"
+                + "-fx-background-radius: 8; -fx-border-width: 2;");
+
+        HBox inputRow = new HBox(10, nameLabel, nameField, focusLabel, focusBox);
+        inputRow.setAlignment(Pos.CENTER);
+        inputRow.setPadding(new Insets(15));
+        inputRow.setMaxWidth(800);
+        inputRow.setStyle(panelStyle("#f3e5f5", "#ab47bc"));
+
+        // ==============================
+        // CHECKBOXES
+        // ==============================
+        Label actionTitle = new Label("✅ MY CLIMATE ACTIONS");
+        actionTitle.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        actionTitle.setTextFill(Color.web("#c2185b"));
+
+        checks = new CheckBox[] {
+                new CheckBox("🚲 Use public transport / cycle more"),
+                new CheckBox("💡 Save electricity at home"),
+                new CheckBox("♻️ Reduce, reuse and recycle waste"),
+                new CheckBox("🥤 Avoid single-use plastic")
+        };
+        String[] checkColors = {"#d81b60", "#f57c00", "#388e3c", "#1976d2"};
+
+        VBox checkBox = new VBox(8, actionTitle);
+        for (int i = 0; i < checks.length; i++) {
+            checks[i].setStyle("-fx-text-fill: " + checkColors[i] + ";"
+                    + "-fx-font-weight: bold; -fx-font-size: 14px;");
+            checks[i].setOnAction(e -> updateProgress());
+            checkBox.getChildren().add(checks[i]);
+        }
+        checkBox.setPadding(new Insets(15));
+        checkBox.setMaxWidth(800);
+        checkBox.setStyle(panelStyle("#fce4ec", "#ec407a"));
+
+        // ==============================
+        // RADIO BUTTONS
+        // ==============================
+        Label levelTitle = new Label("🏅 PLEDGE LEVEL");
+        levelTitle.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        levelTitle.setTextFill(Color.web("#0277bd"));
+
+        ToggleGroup levelGroup = new ToggleGroup();
+        RadioButton beginner = new RadioButton("🥉 Beginner");
+        RadioButton active = new RadioButton("🥈 Active");
+        RadioButton champion = new RadioButton("🥇 Champion");
+        RadioButton[] radioArr = {beginner, active, champion};
+        String[] radioColors = {"#8d6e63", "#546e7a", "#f9a825"};
+        for (int i = 0; i < radioArr.length; i++) {
+            radioArr[i].setToggleGroup(levelGroup);
+            radioArr[i].setStyle("-fx-text-fill: " + radioColors[i] + ";"
+                    + "-fx-font-weight: bold; -fx-font-size: 14px;");
+        }
+        beginner.setSelected(true);
+
+        Label levelInfo = new Label("Small steps count!");
+        levelInfo.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        levelInfo.setTextFill(Color.web("#01579b"));
+
+        levelGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
+            if (newT == beginner) levelInfo.setText("Small steps count!");
+            else if (newT == active) levelInfo.setText("Great, you are making a real difference!");
+            else if (newT == champion) levelInfo.setText("Inspiring! Lead others to act.");
+        });
+
+        HBox radios = new HBox(20, beginner, active, champion);
+        VBox levelBox = new VBox(8, levelTitle, radios, levelInfo);
+        levelBox.setPadding(new Insets(15));
+        levelBox.setMaxWidth(800);
+        levelBox.setStyle(panelStyle("#e1f5fe", "#29b6f6"));
+
+        // ==============================
+        // SLIDER
+        // ==============================
+        treeLabel = new Label("🌳 Trees I will plant: 0");
+        treeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        treeLabel.setTextFill(Color.web("#1b5e20"));
+
+        treeSlider = new Slider(0, 100, 0);
+        treeSlider.setPrefWidth(450);
+        treeSlider.setShowTickLabels(true);
+        treeSlider.setShowTickMarks(true);
+        treeSlider.setMajorTickUnit(25);
+        treeSlider.valueProperty().addListener((obs, o, n) -> {
+            treeLabel.setText("🌳 Trees I will plant: " + n.intValue());
+            updateProgress();
+        });
+
+        VBox sliderBox = new VBox(8, treeLabel, treeSlider);
+        sliderBox.setAlignment(Pos.CENTER);
+        sliderBox.setPadding(new Insets(15));
+        sliderBox.setMaxWidth(800);
+        sliderBox.setStyle(panelStyle("#e8f5e9", "#66bb6a"));
+
+        // ==============================
+        // PROGRESS
+        // ==============================
+        Label progressLabel = new Label("📊 Climate Action Progress");
+        progressLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        progressLabel.setTextFill(Color.web("#4a148c"));
+
+        progressBar = new ProgressBar(0);
+        progressBar.setPrefWidth(450);
+        progressBar.setPrefHeight(22);
+        progressBar.setStyle("-fx-accent: #e53935;");
+
+        percentLabel = new Label("0%");
+        percentLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        percentLabel.setTextFill(Color.web("#4a148c"));
+
+        message = new Label("Choose your actions and plant some trees!");
+        message.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        message.setTextFill(Color.web("#bf360c"));
+        message.setWrapText(true);
+
+        VBox progressBox = new VBox(8, progressLabel, progressBar, percentLabel, message);
+        progressBox.setAlignment(Pos.CENTER);
+        progressBox.setPadding(new Insets(15));
+        progressBox.setMaxWidth(800);
+        progressBox.setStyle(panelStyle("#ede7f6", "#7e57c2"));
+
+        // ==============================
+        // BUTTONS
+        // ==============================
+        Button pledgeButton = new Button("🌟 TAKE THE PLEDGE");
+        pledgeButton.setPrefWidth(220);
+        String pledgeNormal = buttonStyle("#f7971e", "#ffd200", "black");
+        String pledgeHover = buttonStyle("#ffd200", "#f7971e", "black");
+        pledgeButton.setStyle(pledgeNormal);
+        pledgeButton.setOnMouseEntered(e -> pledgeButton.setStyle(pledgeHover));
+        pledgeButton.setOnMouseExited(e -> pledgeButton.setStyle(pledgeNormal));
+
+        Button resetButton = new Button("🔄 RESET");
+        resetButton.setPrefWidth(130);
+        String resetNormal = buttonStyle("#cb2d3e", "#ef473a", "white");
+        String resetHover = buttonStyle("#ef473a", "#cb2d3e", "white");
+        resetButton.setStyle(resetNormal);
+        resetButton.setOnMouseEntered(e -> resetButton.setStyle(resetHover));
+        resetButton.setOnMouseExited(e -> resetButton.setStyle(resetNormal));
+
+        HBox buttons = new HBox(20, pledgeButton, resetButton);
+        buttons.setAlignment(Pos.CENTER);
+
+        pledgeButton.setOnAction(e -> {
+            String name = nameField.getText().trim();
+            if (name.isEmpty()) name = "Friend";
+
+            int count = 0;
+            for (CheckBox cb : checks) if (cb.isSelected()) count++;
+            int trees = (int) treeSlider.getValue();
+            RadioButton chosen = (RadioButton) levelGroup.getSelectedToggle();
+
+            if (count == 0 && trees == 0) {
+                message.setText("Please select an action or plant some trees first.");
+                return;
+            }
+
+            message.setText("🎉 Thank you, " + name + "! Together we can fight climate change.");
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Climate Pledge");
+            alert.setHeaderText("🌍 Pledge received from " + name);
+            alert.setContentText(
+                    "Focus area: " + focusBox.getValue()
+                    + "\nPledge level: " + chosen.getText()
+                    + "\nActions selected: " + count + " / 4"
+                    + "\nTrees to plant: " + trees);
+            alert.getDialogPane().setStyle("-fx-background-color: #fff8e1;");
+            alert.showAndWait();
+        });
+
+        resetButton.setOnAction(e -> {
+            for (CheckBox cb : checks) cb.setSelected(false);
+            nameField.clear();
+            focusBox.setValue("Energy");
+            beginner.setSelected(true);
+            treeSlider.setValue(0);
+            updateProgress();
+            message.setText("Choose your actions and plant some trees!");
+        });
+
+        // ==============================
+        // FOOTER
+        // ==============================
+        Label footer = new Label("🌎 THERE IS NO PLANET B • SDG 13 • ACT NOW 🌎");
+        footer.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        footer.setTextFill(Color.GOLD);
+        footer.setPadding(new Insets(10, 25, 10, 25));
+        footer.setStyle("-fx-background-color: linear-gradient(to right, #141e30, #243b55);"
+                + "-fx-background-radius: 25;");
+
+        // ==============================
+        // MAIN LAYOUT
+        // ==============================
+        VBox content = new VBox(18,
+                header, aboutBox, cards, inputRow, checkBox, levelBox,
+                sliderBox, progressBox, buttons, footer);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(25));
+        content.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right,"
+                + " #ff9966, #ff5e62, #c471ed, #12c2e9, #00f260);");
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        stage.setTitle("SDG 13 - Climate Action");
+        stage.setScene(new Scene(scrollPane, 950, 850));
+        stage.show();
+    }
+
+    // Progress = checkboxes (60%) + slider (40%); bar colour changes with progress
+    private void updateProgress() {
+        int count = 0;
+        for (CheckBox cb : checks) if (cb.isSelected()) count++;
+
+        double progress = (count / 4.0) * 0.6 + (treeSlider.getValue() / 100.0) * 0.4;
+        progressBar.setProgress(progress);
+        percentLabel.setText((int) Math.round(progress * 100) + "%");
+
+        String color;
+        if (progress >= 1.0) color = "#00c853";
+        else if (progress >= 0.75) color = "#64dd17";
+        else if (progress >= 0.5) color = "#ffab00";
+        else if (progress >= 0.25) color = "#ff6d00";
+        else color = "#e53935";
+        progressBar.setStyle("-fx-accent: " + color + ";");
+
+        if (progress >= 1.0) message.setText("🏆 Amazing! You are a true climate hero!");
+        else if (progress >= 0.5) message.setText("👏 Great progress, keep going!");
+        else if (progress > 0) message.setText("🌱 Good start, every action matters.");
+        else message.setText("Choose your actions and plant some trees!");
+    }
+
+    private String panelStyle(String background, String border) {
+        return "-fx-background-color: " + background + ";"
+                + "-fx-background-radius: 18; -fx-border-radius: 18;"
+                + "-fx-border-color: " + border + "; -fx-border-width: 3;";
+    }
+
+    private String buttonStyle(String c1, String c2, String textColor) {
+        return "-fx-background-color: linear-gradient(to right, " + c1 + ", " + c2 + ");"
+                + "-fx-text-fill: " + textColor + ";"
+                + "-fx-font-weight: bold; -fx-font-size: 15px; -fx-padding: 10px;"
+                + "-fx-background-radius: 25; -fx-cursor: hand;";
+    }
+
+    // Gradient info card with glow + zoom on mouse hover
+    private VBox createCard(String heading, String description, String c1, String c2) {
+        Label t = new Label(heading);
+        t.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        t.setTextFill(Color.WHITE);
+
+        Label d = new Label(description);
+        d.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        d.setTextFill(Color.WHITE);
+        d.setWrapText(true);
+        d.setTextAlignment(TextAlignment.CENTER);
+
+        VBox card = new VBox(8, t, d);
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(18));
+        card.setPrefWidth(255);
+        card.setStyle("-fx-background-color: linear-gradient(to bottom right, " + c1 + ", " + c2 + ");"
+                + "-fx-background-radius: 20; -fx-border-radius: 20;"
+                + "-fx-border-color: white; -fx-border-width: 3;");
+        card.setEffect(new DropShadow(10, Color.rgb(0, 0, 0, 0.4)));
+
+        card.setOnMouseEntered(e -> {
+            card.setEffect(new DropShadow(30, Color.WHITE));
+            card.setScaleX(1.08);
+            card.setScaleY(1.08);
+        });
+        card.setOnMouseExited(e -> {
+            card.setEffect(new DropShadow(10, Color.rgb(0, 0, 0, 0.4)));
+            card.setScaleX(1.0);
+            card.setScaleY(1.0);
+        });
+        return card;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
